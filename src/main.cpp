@@ -3,7 +3,7 @@
 void setup()
 {
   //Initialize the Kniwwelino Board
-  Kniwwelino.begin("sketch_sep16a", false, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
+  Kniwwelino.begin("main", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
 }
 
 void loop()
