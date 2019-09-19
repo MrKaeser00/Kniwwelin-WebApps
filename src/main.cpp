@@ -1,5 +1,15 @@
 #include <Kniwwelino.h>
 
+int mathRandomInt(int min, int max) {
+  if (min > max) {
+    // Swap min and max to ensure min is smaller.
+    int temp = min;
+    min = max;
+    max = temp;
+  }
+  return min + (rand() % (max - min + 1));
+}
+
 void setup()
 {
   //Initialize the Kniwwelino Board
@@ -18,7 +28,7 @@ void loop()
   }
 
   Kniwwelino.RGBsetBrightness((int)250);
-  Kniwwelino.MATRIXwriteOnce(str);
+  //Kniwwelino.MATRIXwriteOnce(str);
 
   if (Kniwwelino.BUTTONAclicked())
   {
