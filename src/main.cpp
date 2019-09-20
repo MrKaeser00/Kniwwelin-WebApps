@@ -1,61 +1,37 @@
 #include <Kniwwelino.h>
+#include <ArduinoOTA.h>
+#include "server.h"
 
-int mathRandomInt(int min, int max) {
-  if (min > max) {
-    // Swap min and max to ensure min is smaller.
-    int temp = min;
-    min = max;
-    max = temp;
-  }
-  return min + (rand() % (max - min + 1));
-}
+// Set web server port number to 80
+WiFiServer server(80);
+
+// Assign output variables to GPIO pins
+//const int output5 = 5;
+//const int output4 = 4;
 
 void setup()
 {
-  //Initialize the Kniwwelino Board
-  Kniwwelino.begin("main", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
+  Serial.begin(115200);
+  ArduinoOTA.begin();
+  Kniwwelino.begin("Name", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
+  // Initialize the output variables as outputs
+  //pinMode(output5, OUTPUT);
+  //pinMode(output4, OUTPUT);
+  // Set outputs to LOW
+  //digitalWrite(output5, LOW);
+  //digitalWrite(output4, LOW);
+
+  // Print local IP address and start web server
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(Kniwwelino.getIP());
+  server.begin();
 }
 
 void loop()
 {
-  char conn = (Kniwwelino.isConnected() == true ? '1' : '0');
-  char str[2];
-  str[0] = conn;
-  str[1] = '\0';
-  if (Kniwwelino.isConnected())
-  {
-    Kniwwelino.MATRIXwrite(Kniwwelino.getIP(), 1, false);
-  }
-
-  Kniwwelino.RGBsetBrightness((int)250);
-  //Kniwwelino.MATRIXwriteOnce(str);
-
-  if (Kniwwelino.BUTTONAclicked())
-  {
-    for (int count = 0; count < 10; count++)
-    {
-      Kniwwelino.RGBsetColorEffect(String("A1FF46"), RGB_ON, -1);
-      Kniwwelino.sleep((unsigned long)(5 * 1000));
-      Kniwwelino.RGBsetColorEffect(String("FF0000"), RGB_BLINK, -1);
-      Kniwwelino.sleep((unsigned long)(5 * 1000));
-      Kniwwelino.loop(); // do background stuff...
-    }
-  }
-  if (Kniwwelino.BUTTONBclicked())
-  {
-    for (int count2 = 0; count2 < 10; count2++)
-    {
-      Kniwwelino.RGBsetColorEffect(String("3366FF"), RGB_FLASH, -1);
-      Kniwwelino.sleep((unsigned long)(5 * 1000));
-      Kniwwelino.RGBsetColorEffect(String("CC33CC"), RGB_GLOW, -1);
-      Kniwwelino.sleep((unsigned long)(5 * 1000));
-      Kniwwelino.loop(); // do background stuff...
-    }
-  }
-  if (Kniwwelino.BUTTONABclicked())
-  {
-    Kniwwelino.RGBclear();
-  }
-
-  Kniwwelino.loop(); // do background stuff...
+  WiFiClient client = server.available(); // Listen for incoming clients
+  checkClient(client);
+  ArduinoOTA.handle();
 }
