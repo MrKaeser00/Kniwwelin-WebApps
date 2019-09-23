@@ -1,6 +1,0 @@
-{
-    "terminal.integrated.env.windows": {
-        "PATH": "C:\\Users\\Christophe\\.platformio\\penv\\Scripts;C:\\Users\\Christophe\\.platformio\\penv;C:\\Program Files\\Python36\\Scripts\\;C:\\Program Files\\Python36\\;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\PuTTY\\;C:\\Program Files\\Git\\cmd;C:\\Users\\Christophe\\AppData\\Local\\Microsoft\\WindowsApps;%PyCharm Community Edition with Anaconda plugin%;C:\\Users\\Christophe\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Program Files\\Python36\\Scripts\\;C:\\Program Files\\Python36\\;C:\\Program Files (x86)\\Common Files\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\OpenSSH\\;C:\\Program Files\\PuTTY\\;C:\\Program Files\\Git\\cmd;C:\\Users\\Christophe\\AppData\\Local\\Microsoft\\WindowsApps;%PyCharm Community Edition with Anaconda plugin%;C:\\Users\\Christophe\\AppData\\Local\\Programs\\Microsoft VS Code\\bin",
-        "PLATFORMIO_CALLER": "vscode"
-    }
-}
