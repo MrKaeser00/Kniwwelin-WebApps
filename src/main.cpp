@@ -1,6 +1,6 @@
 #include <Kniwwelino.h>
 #include <ArduinoOTA.h>
-#include "server.h"
+#include <server.cpp>
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -34,4 +34,5 @@ void loop()
   WiFiClient client = server.available(); // Listen for incoming clients
   checkClient(client);
   ArduinoOTA.handle();
+  Kniwwelino.loop();
 }
