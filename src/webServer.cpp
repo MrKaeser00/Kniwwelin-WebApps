@@ -1,6 +1,5 @@
 #include <ESP8266WiFi.h>
 #include <Arduino.h>
-#include "server.h"
 
 void checkClient(WiFiClient client)
 {

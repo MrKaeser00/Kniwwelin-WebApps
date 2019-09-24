@@ -1,6 +1,6 @@
 #include <Kniwwelino.h>
 #include <ArduinoOTA.h>
-#include <server.cpp>
+#include <webServer.cpp>
 
 // Set web server port number to 80
 WiFiServer server(80);
