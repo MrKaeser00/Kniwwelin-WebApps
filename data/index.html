@@ -1,27 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<head></head>
+
+<head>
+</head>
+
 <body>
-<a href="https://kniwwelino.lu"><img src="./logo.png"></a>
-<p> LED Status: <span id="led-state">__</span> </p>
-<button onclick="myFunction()"> TOGGLE </button>
+	<a href="https://kniwwelino.lu"><img src="\logo.png"></a>
+	<p> LED Status: <span id="led-state">__</span> </p>
+	<button onclick="changeState()"> TOGGLE </button>
 </body>
 <script>
-function myFunction()
-{
-  console.log("button was clicked!");
-  var xhr = new XMLHttpRequest();
-  var url = "/ledstate";
+	function changeState() {
+		console.log("button was clicked!");
+		var xhr = new XMLHttpRequest();
+		var url = "/ledstate";
 
-  xhr.onreadystatechange = function() {
-    if (this.readyState == 4 && this.status == 200) {
-      document.getElementById("led-state").innerHTML = this.responseText;
-    }
-  };
+		xhr.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				document.getElementById("led-state").innerHTML = this.responseText;
+			}
+		};
 
-  xhr.open("GET", url, true);
-  xhr.send();
-};
-document.addEventListener('DOMContentLoaded', myFunction, false);
+		xhr.open("GET", url, true);
+		xhr.send();
+	};
+
+	function checkState() {
+		console.log("page loaded");
+		var xhr = new XMLHttpRequest();
+		var url = "/cledstate";
+
+		xhr.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				document.getElementById("led-state").innerHTML = this.responseText;
+			}
+		};
+
+		xhr.open("GET", url, true);
+		xhr.send();
+	}
+
+	document.addEventListener('DOMContentLoaded', checkState(), false);
 </script>
+
 </html>
