@@ -9,9 +9,8 @@ File fsUploadFile;
 
 bool ledState;
 
-// Assign output variables to GPIO pins
-//const int output5 = 5;
-//const int output4 = 4;
+//set LED pin
+const uint8_t PIN = D0;
 
 void handleFileUpload()
 {
@@ -67,7 +66,21 @@ void handleIndexFile()
 
 void changeLedState()
 {
-  ledState = !ledState;
+  Serial.println("changeLedState called"); 
+  if (ledState)
+  {
+    char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>Off</led-state>";
+    server.send(200, "text/xml", xmlStr);
+    //Kniwwelino.PINsetEffect(PIN, PIN_OFF);
+    ledState = !ledState;
+  }
+  else
+  {
+    char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>On</led-state>";
+    server.send(200, "text/xml", xmlStr);
+    //Kniwwelino.PINsetEffect(PIN, PIN_ON);
+    ledState = !ledState;
+  }
 }
 
 void setup()
@@ -98,6 +111,8 @@ void setup()
   server.on("/ledstate", changeLedState);
 
   server.begin();
+
+  //pinMode(PIN, OUTPUT);
 }
 
 void loop()
