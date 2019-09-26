@@ -17,7 +17,7 @@
 
 		xhr.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("led-state").innerHTML = this.responseText;
+				document.getElementById("led-state").innerHTML = JSON.parse(this.responseText)[0].state;
 			}
 		};
 
@@ -32,7 +32,7 @@
 
 		xhr.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("led-state").innerHTML = this.responseText;
+				document.getElementById("led-state").innerHTML = JSON.parse(this.responseText)[0].state;
 			}
 		};
 

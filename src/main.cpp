@@ -11,8 +11,30 @@ File fsUploadFile;
 //Variable to store the LED state.
 bool ledState;
 
-//set LED pin
-const uint8_t PIN = D0;
+//converts a boolean to a string by returning 1 if boolean is true and 0 if boolean is false
+String bool2string(boolean x)
+{
+  if (x)
+  {
+    return "1";
+  }
+  else
+  {
+    return "0";
+  }
+}
+
+void sendData(String data)
+{
+  StaticJsonBuffer<30> jsonBuffer;
+  JsonObject &root = jsonBuffer.createObject();
+  root["state"] = data;
+  String strdata;
+  root.printTo(strdata);
+  strdata = "[" + strdata + "]";
+  server.send(200, "application/json", strdata);
+  root.prettyPrintTo(Serial);
+}
 
 //A function to handle the file upload.
 void handleFileUpload()
@@ -75,16 +97,18 @@ void changeLedState()
   Serial.println("changeLedState called");
   if (ledState)
   {
-    const char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>Off</led-state>";
-    server.send(200, "text/xml", xmlStr);
-    //Kniwwelino.PINsetEffect(PIN, PIN_OFF);
+    //const char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>Off</led-state>";
+    //server.send(200, "text/xml", xmlStr);
+    sendData("Off");
+    Kniwwelino.MATRIXwrite(bool2string(!ledState));
     ledState = !ledState;
   }
   else
   {
-    const char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>On</led-state>";
-    server.send(200, "text/xml", xmlStr);
-    //Kniwwelino.PINsetEffect(PIN, PIN_ON);
+    //const char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>On</led-state>";
+    //server.send(200, "text/xml", xmlStr);
+    sendData("On");
+    Kniwwelino.MATRIXwrite(bool2string(!ledState));
     ledState = !ledState;
   }
 }
@@ -92,28 +116,44 @@ void changeLedState()
 //A function to check for the LED state (only used when first (re)loading the page).
 void checkLedState()
 {
+  /*
   if (ledState)
   {
     const char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>On</led-state>";
     server.send(200, "text/xml", xmlStr);
+
   }
   else
   {
     const char *xmlStr = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><led-state>Off</led-state>";
     server.send(200, "text/xml", xmlStr);
   }
+  */
+  if (ledState)
+  {
+    sendData("On");
+  }
+  else
+  {
+    sendData("Off");
+  }
 }
 
-bool loadFromSpiffs(String path){
+bool loadFromSpiffs(String path)
+{
   String dataType = "text/plain";
-  if(path.endsWith("/")) path += "index.html";
+  if (path.endsWith("/"))
+    path += "index.html";
 
-  if(path.endsWith(".src")) path = path.substring(0, path.lastIndexOf("."));
-  else if(path.endsWith(".html")) dataType = "text/html";
+  if (path.endsWith(".src"))
+    path = path.substring(0, path.lastIndexOf("."));
+  else if (path.endsWith(".html"))
+    dataType = "text/html";
   //else if(path.endsWith(".htm")) dataType = "text/html";
   //else if(path.endsWith(".css")) dataType = "text/css";
   //else if(path.endsWith(".js")) dataType = "application/javascript";
-  else if(path.endsWith(".png")) dataType = "image/png";
+  else if (path.endsWith(".png"))
+    dataType = "image/png";
   //else if(path.endsWith(".gif")) dataType = "image/gif";
   //else if(path.endsWith(".jpg")) dataType = "image/jpeg";
   //else if(path.endsWith(".ico")) dataType = "image/x-icon";
@@ -121,26 +161,31 @@ bool loadFromSpiffs(String path){
   //else if(path.endsWith(".pdf")) dataType = "application/pdf";
   //else if(path.endsWith(".zip")) dataType = "application/zip";
   File dataFile = SPIFFS.open(path.c_str(), "r");
-  if (server.hasArg("download")) dataType = "application/octet-stream";
-  if (server.streamFile(dataFile, dataType) != dataFile.size()) {
+  if (server.hasArg("download"))
+    dataType = "application/octet-stream";
+  if (server.streamFile(dataFile, dataType) != dataFile.size())
+  {
   }
 
   dataFile.close();
   return true;
 }
 
-void handleWebRequests(){
-  if(loadFromSpiffs(server.uri())) return;
+void handleWebRequests()
+{
+  if (loadFromSpiffs(server.uri()))
+    return;
   String message = "File Not Detected\n\n";
   message += "URI: ";
   message += server.uri();
   message += "\nMethod: ";
-  message += (server.method() == HTTP_GET)?"GET":"POST";
+  message += (server.method() == HTTP_GET) ? "GET" : "POST";
   message += "\nArguments: ";
   message += server.args();
   message += "\n";
-  for (uint8_t i=0; i<server.args(); i++){
-    message += " NAME:"+server.argName(i) + "\n VALUE:" + server.arg(i) + "\n";
+  for (uint8_t i = 0; i < server.args(); i++)
+  {
+    message += " NAME:" + server.argName(i) + "\n VALUE:" + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
   Serial.println(message);
@@ -150,7 +195,7 @@ void setup()
 {
   Serial.begin(115200);
   SPIFFS.begin();
-  ArduinoOTA.begin(); //Enables Over-The-Air updates
+  ArduinoOTA.begin();                          //Enables Over-The-Air updates
   Kniwwelino.begin("Name", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
 
   // Print local IP address.
@@ -174,15 +219,15 @@ void setup()
   //Handle led status on site
   server.on("/ledstate", changeLedState);
   server.on("/cledstate", checkLedState);
-  
+
   //Handle the logo.
   server.on("/logo.png", HTTP_POST, []() {
     File im = SPIFFS.open("/logo.png", "r");
     server.streamFile(im, "image/png");
     server.send(200, "text/plain", "{\"success\":1}");
     im.close();
-  } );
-  
+  });
+
   //Handles files not found
   server.onNotFound(handleWebRequests);
 
