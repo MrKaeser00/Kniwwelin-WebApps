@@ -9,35 +9,55 @@
 #include "FS.h"
 #include "ArduinoJson.h"
 
+//instantiates the WebServer object ionto the server pointer with WEB_PORT as an argument.
+ESP8266WebServer server(WEB_PORT);
+
 WebAppsLib::WebAppsLib() {}
 
-void WebAppsLib::init(int port)
+//Initializes basic functionality (index.html) and starts the web-server. Needs to be called in setup().
+void WebAppsLib::init()
 {
-    ESP8266WebServer server(port);
-    //What the server does when the user is on the "/" directory.
-    //server.on("/", WebApps.handleIndexFile);
+    //What the server does when the user is on the ROOT_DIR ("/") directory.
+    server.on(ROOT_DIR, std::bind(&WebAppsLib::handleIndexFile, this));
 
-    //List available files.
-    server.on("/list", HTTP_GET, std::bind(&WebAppsLib::handleIndexFile, this));
+    //Forward the logo to the server.
+    server.on(LOGO_FILE, std::bind(&WebAppsLib::handleLogo, this));
 
-    //Handles files not found
-    server.onNotFound(std::bind(&WebAppsLib::handleWebRequests, this));
+    //List available files on the ESP8266's filestorage.
+    server.on(LIST_DIR, HTTP_GET, std::bind(&WebAppsLib::handleFileList, this));
+
+    //Handles files not found.
+    //server.onNotFound(std::bind(&WebAppsLib::handleWebRequests, this));
 
     //Starts the web-server.
     server.begin();
 }
 
+//A function that tells the server to handle clients. Needs to be called in loop().
 void WebAppsLib::handle()
 {
     server.handleClient();
 }
-/*
+
+//Lets the user define in their code what happens on a given uri. Just forwards path an function to server.on(path, function). Is Called during setup().
 void WebAppsLib::on(const String path, THandlerFunction handler)
 {
     server.on(path, handler);
 }
-*/
-//converts a boolean to a string by returning 1 if boolean is true and 0 if boolean is false
+
+//Puts data to send into json format and sends it to web-server. Can be called from any funcion.
+void WebAppsLib::sendData(String data)
+{
+    StaticJsonBuffer<30> jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    root["state"] = data;
+    String strdata;
+    root.printTo(strdata);
+    strdata = "[" + strdata + "]";
+    server.send(200, "application/json", strdata);
+}
+
+//converts a boolean to a string by returning 1 if boolean is true and 0 if boolean is false. Can be called from any funcion.
 String WebAppsLib::bool2string(boolean boo)
 {
     if (boo)
@@ -50,16 +70,20 @@ String WebAppsLib::bool2string(boolean boo)
     }
 }
 
-//Puts data to send into json format and sends it to web-server.
-void WebAppsLib::sendData(String data)
+//A function to redirect the user from the / directory to index.html.
+void WebAppsLib::handleIndexFile()
 {
-    StaticJsonBuffer<30> jsonBuffer;
-    JsonObject &root = jsonBuffer.createObject();
-    root["state"] = data;
-    String strdata;
-    root.printTo(strdata);
-    strdata = "[" + strdata + "]";
-    server.send(200, "application/json", strdata);
+    File file = SPIFFS.open(INDEX_FILE, "r");
+    server.streamFile(file, "text/html");
+    file.close();
+}
+
+//A function which is responsible to give the server the logo in the main page.
+void WebAppsLib::handleLogo()
+{
+    File file = SPIFFS.open(LOGO_FILE, "r");
+    server.streamFile(file, "image/png");
+    file.close();
 }
 
 //A function to list the files on the esp8266 storage.
@@ -82,14 +106,7 @@ void WebAppsLib::handleFileList()
     server.send(200, "text/plain", output);
 }
 
-//A function to redirect the user from the / directory to index.html.
-void WebAppsLib::handleIndexFile()
-{
-    File file = SPIFFS.open("/index.html", "r");
-    server.streamFile(file, "text/html");
-    file.close();
-}
-
+/*
 bool WebAppsLib::loadFromSpiffs(String path)
 {
     String dataType = "text/plain";
@@ -138,5 +155,6 @@ void WebAppsLib::handleWebRequests()
     server.send(404, "text/plain", message);
     Serial.println(message);
 }
+*/
 
-WebAppsLib WebApps = WebAppsLib();
+WebAppsLib WebApps;

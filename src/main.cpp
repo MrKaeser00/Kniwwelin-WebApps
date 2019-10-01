@@ -1,9 +1,6 @@
 #include <Kniwwelino.h>
 #include <ArduinoOTA.h>
 #include <Kniwwelino-WebApps.h>
-//#include <NewPing.h>
-
-//NewPing hcsr04_D0D5(D0, D5, 200);
 
 //Variable to store the LED state.
 bool ledState;
@@ -54,11 +51,11 @@ void setup()
   Serial.println("IP address: ");
   Serial.println(Kniwwelino.getIP());
 
-  //Handle led status on site
-  WebApps.server.on("/ledstate", changeLedState);
-  WebApps.server.on("/cledstate", checkLedState);
+  //Handle led state on site
+  WebApps.on("/ledstate", changeLedState);
+  WebApps.on("/cledstate", checkLedState);
 
-  WebApps.init(80);
+  WebApps.init();
   //pinMode(D5, OUTPUT);
 }
 
@@ -67,6 +64,4 @@ void loop()
   WebApps.handle();
   ArduinoOTA.handle();
   Kniwwelino.loop();
-  //Serial.println(hcsr04_D0D5.ping_cm());
-
 }

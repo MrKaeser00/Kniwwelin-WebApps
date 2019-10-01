@@ -9,24 +9,35 @@
 #include "Arduino.h"
 #include "ESP8266WebServer.h"
 
+#define INDEX_FILE  "/index.html"
+#define LOGO_FILE   "/logo.png"
+
+#define ROOT_DIR    "/"
+#define LIST_DIR    "/list"
+
+#define WEB_PORT    80
+
 class WebAppsLib
 {
 public:
-    WebAppsLib();
-    void init(int port);
-    String bool2string(boolean boo);
-    void sendData(String data);
-    void handle();
-    //typedef std::function<void(void)> THandlerFunction;
-    //void on(const String path, THandlerFunction handler);
     ESP8266WebServer server;
-
+    WebAppsLib();
+    void init();
+    void handle();
+    typedef std::function<void(void)> THandlerFunction;
+    void on(const String path, THandlerFunction handler);
+    void sendData(String data);
+    String bool2string(boolean boo);
+    
+    
 private:
-    void handleFileList();
-    void hanleFileIndex();
     void handleIndexFile();
-    bool loadFromSpiffs(String path);
-    void handleWebRequests();
+    void handleLogo();
+    void handleFileList();
+
+    //bool loadFromSpiffs(String path);
+    //void handleWebRequests();
+    
 };
 
 extern WebAppsLib WebApps;
