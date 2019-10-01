@@ -9,7 +9,7 @@
 #include "FS.h"
 #include "ArduinoJson.h"
 
-WebAppsLib::WebAppsLib(){}
+WebAppsLib::WebAppsLib() {}
 
 void WebAppsLib::init(int port)
 {
@@ -138,3 +138,5 @@ void WebAppsLib::handleWebRequests()
     server.send(404, "text/plain", message);
     Serial.println(message);
 }
+
+WebAppsLib WebApps = WebAppsLib();

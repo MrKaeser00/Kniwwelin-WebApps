@@ -1,0 +1,19 @@
+#######################################
+# Syntax Coloring Map For Wire
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+WebApps	KEYWORD1
+server KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+init	KEYWORD2
+handle	KEYWORD2
+bool2string	KEYWORD2
+sendData	KEYWORD2

@@ -17,7 +17,7 @@ public:
     String bool2string(boolean boo);
     void sendData(String data);
     void handle();
-    typedef std::function<void(void)> THandlerFunction;
+    //typedef std::function<void(void)> THandlerFunction;
     //void on(const String path, THandlerFunction handler);
     ESP8266WebServer server;
 
