@@ -9,6 +9,8 @@
 #include "FS.h"
 #include "ArduinoJson.h"
 
+#include "Kniwwelino.h"
+
 //instantiates the WebServer object ionto the server pointer with WEB_PORT as an argument.
 ESP8266WebServer server(WEB_PORT);
 
@@ -29,6 +31,9 @@ void WebAppsLib::init()
     //Handles files not found.
     //server.onNotFound(std::bind(&WebAppsLib::handleWebRequests, this));
 
+    //Get data from input field on site.
+    server.on("/get", HTTP_GET, std::bind(&WebAppsLib::handleGet, this));
+
     //Starts the web-server.
     server.begin();
 }
@@ -46,11 +51,11 @@ void WebAppsLib::on(const String path, THandlerFunction handler)
 }
 
 //Puts data to send into json format and sends it to web-server. Can be called from any funcion.
-void WebAppsLib::sendData(String data)
+void WebAppsLib::sendData(String topic, String data)
 {
-    StaticJsonBuffer<30> jsonBuffer;
+    StaticJsonBuffer<JSONBUFFER> jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
-    root["state"] = data;
+    root[topic] = data;
     String strdata;
     root.printTo(strdata);
     strdata = "[" + strdata + "]";
@@ -104,6 +109,23 @@ void WebAppsLib::handleFileList()
     }
     output += "]";
     server.send(200, "text/plain", output);
+}
+
+//Returns value from first argument of /get? request.
+//String WebAppsLib::handleGet(String arg)
+void WebAppsLib::handleGet()
+{
+    String inputMessage;
+
+    if (server.hasArg("input1")) 
+    {
+        inputMessage = server.arg(0);
+        Serial.println(inputMessage);
+        Kniwwelino.MATRIXwriteAndWait(inputMessage);
+        //return inputMessage;
+    }
+    server.sendHeader("Location", "/", true);
+    server.send(302, "text/plain", "");
 }
 
 /*

@@ -15,6 +15,7 @@
 #define ROOT_DIR    "/"
 #define LIST_DIR    "/list"
 
+#define JSONBUFFER  200
 #define WEB_PORT    80
 
 class WebAppsLib
@@ -26,14 +27,17 @@ public:
     void handle();
     typedef std::function<void(void)> THandlerFunction;
     void on(const String path, THandlerFunction handler);
-    void sendData(String data);
+    void sendData(String topic, String data);
     String bool2string(boolean boo);
+    //String handleGet(String arg);
     
     
 private:
     void handleIndexFile();
     void handleLogo();
     void handleFileList();
+    void handleGet();
+    
 
     //bool loadFromSpiffs(String path);
     //void handleWebRequests();
