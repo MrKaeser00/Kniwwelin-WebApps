@@ -3,21 +3,22 @@
 #include <Kniwwelino-WebApps.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <NewPing.h>
 
 //Variable to store the LED state.
 bool ledState;
 
+//Variables for the ultrasonic sensor.
+String dist;
+NewPing sonic(D6, D6, 200);
+
 //Variable to store the temperature.
 String temp;
 
+//Vairables for the temperature sensor to work.
 OneWire OneWireD5(D5);
 DallasTemperature tempSensor(&OneWireD5);
-/*
-float tempSensor_wrapper() {
-  tempSensor.requestTemperatures();
-  return tempSensor.getTemp();
-}
-*/
+
 //A function to toggle the LED on and off.
 void changeLedState()
 {
@@ -52,13 +53,35 @@ void checkLedState()
   }
 }
 
+//A function to check the temperature from a DS18B20 sensor.
 void checkTemp()
 {
-
-  Serial.println(system_get_rtc_time());
-  //temp = (String)tempSensor_wrapper() + "°C";
-  //WebApps.sendData("temp", temp);
+  Serial.println("temp called");
+  //temp = tempSensor.getTempC(0);
+  //Serial.println(system_get_rtc_time());
   WebApps.sendData("temp", "1°C");
+}
+
+//A function to check the distance in fornt of an HC_SR04P ultrasonic sensor.
+void checkSonic()
+{
+  Serial.println("sonic called");
+  dist = sonic.ping_cm();
+  dist += "cm";
+  WebApps.sendData("sonic", dist);
+  Serial.println(dist);
+}
+
+void setRGBLed()
+{
+  Serial.println("setRGBLed called");
+  StaticJsonBuffer<JSONBUFFER> jsonBuffer;
+  JsonObject &colorJson = jsonBuffer.parse(WebApps.arg(0));
+  String colorString;
+  colorString = colorJson.get<String>("colorcode");
+  Serial.println(colorString);
+  Kniwwelino.RGBsetColor(colorString);
+  //WebApps.send(200, "text/plain", "");
 }
 
 void setup()
@@ -78,8 +101,18 @@ void setup()
   //Handle led state on site
   WebApps.on("/ledstate", changeLedState);
   WebApps.on("/cledstate", checkLedState);
-  WebApps.on("/checktemp", checkTemp);
 
+  //Handle temperature.
+  WebApps.on("/temp", checkTemp);
+
+  //Handle ultrasonic sensor
+  WebApps.on("/sonic", checkSonic);
+
+  WebApps.on("/colorcode", HTTP_POST, setRGBLed);
+
+  Kniwwelino.RGBsetColor("#0000ff");
+
+  //Initializes WebApps library.
   WebApps.init();
   //pinMode(D5, OUTPUT);
 }

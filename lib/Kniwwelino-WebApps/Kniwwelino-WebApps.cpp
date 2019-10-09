@@ -8,7 +8,6 @@
 #include "Kniwwelino-WebApps.h"
 #include "FS.h"
 #include "ArduinoJson.h"
-
 #include "Kniwwelino.h"
 
 //instantiates the WebServer object ionto the server pointer with WEB_PORT as an argument.
@@ -28,11 +27,8 @@ void WebAppsLib::init()
     //List available files on the ESP8266's filestorage.
     server.on(LIST_DIR, HTTP_GET, std::bind(&WebAppsLib::handleFileList, this));
 
-    //Handles files not found.
-    //server.onNotFound(std::bind(&WebAppsLib::handleWebRequests, this));
-
     //Get data from input field on site.
-    server.on("/get", HTTP_GET, std::bind(&WebAppsLib::handleGet, this));
+    server.on(GET_DIR, HTTP_GET, std::bind(&WebAppsLib::handleGet, this));
 
     //Starts the web-server.
     server.begin();
@@ -43,11 +39,26 @@ void WebAppsLib::handle()
 {
     server.handleClient();
 }
-
-//Lets the user define in their code what happens on a given uri. Just forwards path an function to server.on(path, function). Is Called during setup().
+//Lets the user define in their code what happens on a given uri. Just forwards path and function to server.on(path, function). Is Called during setup().
 void WebAppsLib::on(const String path, THandlerFunction handler)
 {
     server.on(path, handler);
+}
+
+//Lets the user define in their code what happens on a given uri. Just forwards path, method and function to server.on(path, method,  function). Is Called during setup().
+void WebAppsLib::on(const String path,HTTPMethod method, THandlerFunction handler) 
+{
+    server.on(path, method, handler);
+}
+
+//Forwards server.arg(int arg).
+String WebAppsLib::arg(int arg) {
+    return server.arg(arg);
+}
+
+//Forwards server.send(int code, const String contentType, const String content).
+void WebAppsLib::send(int code, const String contentType, const String content) {
+    server.send(code, contentType, content);
 }
 
 //Puts data to send into json format and sends it to web-server. Can be called from any funcion.
@@ -111,72 +122,17 @@ void WebAppsLib::handleFileList()
     server.send(200, "text/plain", output);
 }
 
-//Returns value from first argument of /get? request.
-//String WebAppsLib::handleGet(String arg)
-void WebAppsLib::handleGet()
-{
+void WebAppsLib::handleGet() {
     String inputMessage;
 
-    if (server.hasArg("input1")) 
+    if (server.hasArg("input1"))
     {
         inputMessage = server.arg(0);
         Serial.println(inputMessage);
         Kniwwelino.MATRIXwriteAndWait(inputMessage);
-        //return inputMessage;
     }
     server.sendHeader("Location", "/", true);
     server.send(302, "text/plain", "");
 }
-
-/*
-bool WebAppsLib::loadFromSpiffs(String path)
-{
-    String dataType = "text/plain";
-    if (path.endsWith(".src"))
-        path = path.substring(0, path.lastIndexOf("."));
-    else if (path.endsWith(".html"))
-        dataType = "text/html";
-    //else if(path.endsWith(".htm")) dataType = "text/html";
-    //else if(path.endsWith(".css")) dataType = "text/css";
-    //else if(path.endsWith(".js")) dataType = "application/javascript";
-    else if (path.endsWith(".png"))
-        dataType = "image/png";
-    //else if(path.endsWith(".gif")) dataType = "image/gif";
-    //else if(path.endsWith(".jpg")) dataType = "image/jpeg";
-    //else if(path.endsWith(".ico")) dataType = "image/x-icon";
-    //else if(path.endsWith(".xml")) dataType = "text/xml";
-    //else if(path.endsWith(".pdf")) dataType = "application/pdf";
-    //else if(path.endsWith(".zip")) dataType = "application/zip";
-    File dataFile = SPIFFS.open(path.c_str(), "r");
-    if (server.hasArg("download"))
-        dataType = "application/octet-stream";
-    if (server.streamFile(dataFile, dataType) != dataFile.size())
-    {
-    }
-
-    dataFile.close();
-    return true;
-}
-
-void WebAppsLib::handleWebRequests()
-{
-    if (WebApps.loadFromSpiffs(server.uri()))
-        return;
-    String message = "File Not Detected\n\n";
-    message += "URI: ";
-    message += server.uri();
-    message += "\nMethod: ";
-    message += (server.method() == HTTP_GET) ? "GET" : "POST";
-    message += "\nArguments: ";
-    message += server.args();
-    message += "\n";
-    for (uint8_t i = 0; i < server.args(); i++)
-    {
-        message += " NAME:" + server.argName(i) + "\n VALUE:" + server.arg(i) + "\n";
-    }
-    server.send(404, "text/plain", message);
-    Serial.println(message);
-}
-*/
 
 WebAppsLib WebApps;
