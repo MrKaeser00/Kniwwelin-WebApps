@@ -4,18 +4,22 @@
 #include <OneWire.h>
 #include <DallasTemperature.h>
 #include <NewPing.h>
+#include <WS2812FX.h>
 
 //Variable to store the LED state.
 bool ledState;
 
-//Variables for the ultrasonic sensor.
+//HC-SR04 ultrasonic distance sensor.
 String dist;
 NewPing sonic(D6, D6, 200);
 
 //Variable to store the temperature.
 String temp;
 
-//Vairables for the temperature sensor to work.
+//NeoPixel RGB strip.
+WS2812FX RGB = WS2812FX(5, D7,  NEO_GRB + NEO_KHZ800);
+
+//DS18B20 temperature sensor.
 OneWire OneWireD5(D5);
 DallasTemperature tempSensor(&OneWireD5);
 
@@ -69,27 +73,21 @@ void checkSonic()
   dist = sonic.ping_cm();
   dist += "cm";
   WebApps.sendData("sonic", dist);
-  Serial.println(dist);
+  //Serial.println(dist);
 }
 
 void setRGBLed()
 {
-  Serial.println("setRGBLed called");
-  StaticJsonBuffer<JSONBUFFER> jsonBuffer;
-  JsonObject &colorJson = jsonBuffer.parse(WebApps.arg(0));
-  String colorString;
-  colorString = colorJson.get<String>("colorcode");
-  Serial.println(colorString);
+  String colorString = WebApps.getColorData("colorcode");
+  RGB.setColor(Kniwwelino.RGBhex2int(colorString));
   Kniwwelino.RGBsetColor(colorString);
-  //WebApps.send(200, "text/plain", "");
 }
 
 void setup()
 {
   Serial.begin(115200);
-  SPIFFS.begin();
   ArduinoOTA.begin();                          //Enables Over-The-Air updates
-  Kniwwelino.begin("Name", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
+  Kniwwelino.begin("WebApps-Main", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
   tempSensor.begin();
 
   // Print local IP address.
@@ -110,11 +108,14 @@ void setup()
 
   WebApps.on("/colorcode", HTTP_POST, setRGBLed);
 
-  Kniwwelino.RGBsetColor("#0000ff");
+  Kniwwelino.RGBsetColor("000000");
 
   //Initializes WebApps library.
   WebApps.init();
   //pinMode(D5, OUTPUT);
+
+  RGB.init();
+  RGB.start();
 }
 
 void loop()
@@ -122,4 +123,5 @@ void loop()
   WebApps.handle();
   ArduinoOTA.handle();
   Kniwwelino.loop();
+  RGB.service();
 }

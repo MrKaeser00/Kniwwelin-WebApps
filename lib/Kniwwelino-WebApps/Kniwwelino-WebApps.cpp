@@ -18,6 +18,9 @@ WebAppsLib::WebAppsLib() {}
 //Initializes basic functionality (index.html) and starts the web-server. Needs to be called in setup().
 void WebAppsLib::init()
 {
+    //
+    SPIFFS.begin();
+
     //What the server does when the user is on the ROOT_DIR ("/") directory.
     server.on(ROOT_DIR, std::bind(&WebAppsLib::handleIndexFile, this));
 
@@ -71,6 +74,29 @@ void WebAppsLib::sendData(String topic, String data)
     root.printTo(strdata);
     strdata = "[" + strdata + "]";
     server.send(200, "application/json", strdata);
+}
+
+//Returns data as string from json XMLHttpRequest and assumes the argument from the request is 0, which it usually is.
+String WebAppsLib::getData(String topic)
+{
+    WebApps.getData(0, topic);
+}
+
+//Returns data as string from json XMLHttpRequest.
+String WebAppsLib::getData(int argNum, String topic)
+{
+  StaticJsonBuffer<JSONBUFFER> jsonBuffer;
+  JsonObject &dataJson = jsonBuffer.parse(server.arg(argNum));
+  String dataString = dataJson.get<String>(topic);
+  return dataString;
+}
+
+//Returns color value as string in form '00ff00'.
+String WebAppsLib::getColorData(String topic)
+{
+  String colorString = WebApps.getData(0, topic);
+  colorString.remove(0,1);
+  return colorString;
 }
 
 //converts a boolean to a string by returning 1 if boolean is true and 0 if boolean is false. Can be called from any funcion.

@@ -15,6 +15,11 @@ server KEYWORD1
 
 init	KEYWORD2
 handle	KEYWORD2
-bool2string	KEYWORD2
-sendData	KEYWORD2
 on	KEYWORD2
+arg	KEYWORD2
+send	KEYWORD2
+sendData	KEYWORD2
+getData	KEYWORD2
+getColorData	KEYWORD2
+bool2string	KEYWORD2
+handleGet	KEYWORD2

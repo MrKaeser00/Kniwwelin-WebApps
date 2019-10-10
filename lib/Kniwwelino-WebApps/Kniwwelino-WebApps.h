@@ -30,6 +30,9 @@ public:
     void on(const String path, THandlerFunction handler);
     void on(const String path, HTTPMethod method, THandlerFunction handler);
     void sendData(String topic, String data);
+    String getData(String topic);
+    String getData(int argNum, String topic);
+    String getColorData(String topic);
     String arg(int arg);
     void send(int code, const String contentType, const String content);
     String bool2string(boolean boo);
@@ -40,7 +43,6 @@ private:
     void handleIndexFile();
     void handleLogo();
     void handleFileList();
-    //void handleGet();
 };
 
 extern WebAppsLib WebApps;
