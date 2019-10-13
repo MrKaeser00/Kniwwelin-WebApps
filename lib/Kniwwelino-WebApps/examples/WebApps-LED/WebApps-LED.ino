@@ -25,13 +25,14 @@ void setup()
   //Initializes WebApps library.
   WebApps.init();
 
-  //Set pin to ouput
+  //Set pin to output
   pinMode(pin, OUTPUT);
 
 }
 
 void loop()
 {
+  //Handles clients.
   WebApps.handle();
   Kniwwelino.loop();
 }
@@ -39,19 +40,25 @@ void loop()
 //A function to toggle the LED on and off.
 void changeLedState()
 {
-  Serial.println("changeLedState called");
+  //Checks what state the LED is currently in.
   if (ledState)
   {
+	//Sends a string to the server with the name "state" and value "Off".  
     WebApps.sendData("state", "Off");
     Kniwwelino.PINsetEffect(pin, PIN_OFF);
+	//Writes a "0" or "1" on the Matrix depending on the LED state.
     Kniwwelino.MATRIXwrite(WebApps.bool2string(!ledState));
+	//Inverts LED state.
     ledState = !ledState;
   }
   else
   {
+	//Sends a string to the server with the name "state" and value "On".  
     WebApps.sendData("state", "On");
+	//Writes a "0" or "1" on the Matrix depending on the LED state.
     Kniwwelino.MATRIXwrite(WebApps.bool2string(!ledState));
     Kniwwelino.PINsetEffect(pin, PIN_ON);
+	//Inverts LED state.
     ledState = !ledState;
   }
 }
@@ -60,6 +67,7 @@ void changeLedState()
 void checkLedState()
 {
   Kniwwelino.MATRIXwrite(WebApps.bool2string(ledState));
+  //Checks what state the LED is currently in.
   if (ledState)
   {
     WebApps.sendData("state", "On");

@@ -2,7 +2,7 @@
 #include <ArduinoOTA.h>
 #include <Kniwwelino-WebApps.h>
 #include <OneWire.h>
-#include <DallasTemperature.h>
+#include <DS18B20.h>
 #include <NewPing.h>
 #include <WS2812FX.h>
 
@@ -21,7 +21,12 @@ WS2812FX RGB = WS2812FX(5, D7,  NEO_GRB + NEO_KHZ800);
 
 //DS18B20 temperature sensor.
 OneWire OneWireD5(D5);
-DallasTemperature tempSensor(&OneWireD5);
+DS18B20 tempSensor(&OneWireD5);
+
+float tempSensorWrapper() {
+  tempSensor.requestTemperatures();
+  return tempSensor.getTempC();
+}
 
 //A function to toggle the LED on and off.
 void changeLedState()
@@ -61,9 +66,7 @@ void checkLedState()
 void checkTemp()
 {
   Serial.println("temp called");
-  //temp = tempSensor.getTempC(0);
-  //Serial.println(system_get_rtc_time());
-  WebApps.sendData("temp", "1°C");
+  WebApps.sendData("temp", (String)tempSensorWrapper());
 }
 
 //A function to check the distance in fornt of an HC_SR04P ultrasonic sensor.

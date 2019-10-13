@@ -12,8 +12,10 @@ void setup()
   Serial.println("IP address: ");
   Serial.println(Kniwwelino.getIP());
 
+  //What the server does when this URL is called.
   WebApps.on("/colorcode", HTTP_POST, setRGBLed);
 
+  //Turns the LED off a the beginning of the code.
   Kniwwelino.RGBsetColor("000000");
 
   //Initializes WebApps library.
@@ -23,12 +25,16 @@ void setup()
 
 void loop()
 {
+  //Handles clients.
   WebApps.handle();
   Kniwwelino.loop();
 }
 
+//A function which sets the RGB LED according to the data received from site.
 void setRGBLed()
 {
+  //Gets data from server and stores it in a String variable.
   String colorString = WebApps.getColorData("colorcode");
+  //Set the LED accordingly.
   Kniwwelino.RGBsetColor(colorString);
 }

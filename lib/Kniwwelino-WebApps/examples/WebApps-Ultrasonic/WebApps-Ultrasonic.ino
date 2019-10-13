@@ -32,11 +32,13 @@ void loop()
   Kniwwelino.loop();
 }
 
-//A function to check the distance in fornt of an HC_SR04P ultrasonic sensor.
+//A function to check the distance in front of an HC_SR04P ultrasonic sensor.
 void checkSonic()
 {
-  Serial.println("sonic called");
+  //Gets distance in from of sensor.
   dist = sonic.ping_cm();
+  //Adds "cm" to the output.
   dist += "cm";
+  //Sends data to the server do be displayed.
   WebApps.sendData("sonic", dist);
 }
