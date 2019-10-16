@@ -111,10 +111,11 @@ void setup()
 
   WebApps.on("/colorcode", HTTP_POST, setRGBLed);
 
-  Kniwwelino.RGBsetColor("000000");
+  //Kniwwelino.RGBsetColor("000000");
 
   //Initializes WebApps library.
-  WebApps.init();
+  //WebApps.setCredentials("Kniwwelino_9", "EDD1C");
+  WebApps.init(true);
   //pinMode(D5, OUTPUT);
 
   RGB.init();
@@ -123,7 +124,7 @@ void setup()
 
 void loop()
 {
-  WebApps.handle();
+  WebApps.handleClient();
   ArduinoOTA.handle();
   Kniwwelino.loop();
   RGB.service();

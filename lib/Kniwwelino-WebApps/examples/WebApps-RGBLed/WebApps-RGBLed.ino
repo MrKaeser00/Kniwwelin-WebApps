@@ -19,14 +19,14 @@ void setup()
   Kniwwelino.RGBsetColor("000000");
 
   //Initializes WebApps library.
-  WebApps.init();
+  WebApps.init(true);
 
 }
 
 void loop()
 {
   //Handles clients.
-  WebApps.handle();
+  WebApps.handleClient();
   Kniwwelino.loop();
 }
 

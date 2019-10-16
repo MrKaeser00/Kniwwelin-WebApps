@@ -23,13 +23,13 @@ void setup()
   WebApps.on("/temp", checkTemp);
 
   //Initializes WebApps library.
-  WebApps.init();
+  WebApps.init(true);
 }
 
 void loop()
 {
   //Handle clients.
-  WebApps.handle();
+  WebApps.handleClient();
   Kniwwelino.loop();
 }
 

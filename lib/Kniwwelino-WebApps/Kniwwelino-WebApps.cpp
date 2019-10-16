@@ -1,67 +1,54 @@
 /*
-    Web-Apps.ha - Library to enable web-functionality on the Kniwwelino board.
+    Web-Apps.cpp - Library to enable web-functionality on the Kniwwelino board.
 
     Released under LGPL 3.0.
 */
 
-#include "Arduino.h"
 #include "Kniwwelino-WebApps.h"
-#include "FS.h"
-#include "ArduinoJson.h"
-#include "Kniwwelino.h"
 
-//instantiates the WebServer object ionto the server pointer with WEB_PORT as an argument.
-ESP8266WebServer server(WEB_PORT);
+WebAppsLib::WebAppsLib() : ESP8266WebServer(WEB_PORT) {}
 
-WebAppsLib::WebAppsLib() {}
-
-//Initializes basic functionality (index.html) and starts the web-server. Needs to be called in setup().
-void WebAppsLib::init()
+//Initializes basic functionality (index.html) and starts the web-server. Needs to be called in setup(). When failover is enabled, then you have to call setCredentials(ssid, password) before init(enableFailover)
+void WebAppsLib::init(boolean enableFailover) //true=hotspot failover enabled
 {
-    //
+    //Starts filesystem access.
     SPIFFS.begin();
 
     //What the server does when the user is on the ROOT_DIR ("/") directory.
-    server.on(ROOT_DIR, std::bind(&WebAppsLib::handleIndexFile, this));
+    WebApps.on(ROOT_DIR, std::bind(&WebAppsLib::handleIndexFile, this));
 
     //Forward the logo to the server.
-    server.on(LOGO_FILE, std::bind(&WebAppsLib::handleLogo, this));
+    //server.on(LOGO_FILE, std::bind(&WebAppsLib::handleLogo, this));
 
     //List available files on the ESP8266's filestorage.
-    server.on(LIST_DIR, HTTP_GET, std::bind(&WebAppsLib::handleFileList, this));
+    WebApps.on(LIST_DIR, HTTP_GET, std::bind(&WebAppsLib::handleFileList, this));
 
     //Get data from input field on site.
-    server.on(GET_DIR, HTTP_GET, std::bind(&WebAppsLib::handleGet, this));
+    WebApps.on(GET_DIR, HTTP_GET, std::bind(&WebAppsLib::handleGet, this));
+
+    //WebApps.on("/wifi", std::bind(&WebAppsLib::getConfig, this));
+    //WebApps.on("/delconfig", std::bind(&WebAppsLib::remConfig, this));
+    //WebApps.on("/deleverything", std::bind(&WebAppsLib::remEverything, this));
+
+    MDNS.begin("Kniwwelino");
+
+    if (enableFailover && !Kniwwelino.isConnected())
+    {
+        //WiFi.softAP(_ssid, _password);
+        WiFi.mode(WIFI_AP);
+        //MDNS.begin(Kniwwelino.getName().c_str());
+        //MDNS.addService("esp", "tcp", 5353);
+    }
 
     //Starts the web-server.
-    server.begin();
+    WebApps.begin();
 }
 
-//A function that tells the server to handle clients. Needs to be called in loop().
-void WebAppsLib::handle()
+//Note: when using failsafe mode, the MQTT functions cannot be used in the code.
+void WebAppsLib::setCredentials(const char *ssid, const char *password) 
 {
-    server.handleClient();
-}
-//Lets the user define in their code what happens on a given uri. Just forwards path and function to server.on(path, function). Is Called during setup().
-void WebAppsLib::on(const String path, THandlerFunction handler)
-{
-    server.on(path, handler);
-}
-
-//Lets the user define in their code what happens on a given uri. Just forwards path, method and function to server.on(path, method,  function). Is Called during setup().
-void WebAppsLib::on(const String path,HTTPMethod method, THandlerFunction handler) 
-{
-    server.on(path, method, handler);
-}
-
-//Forwards server.arg(int arg).
-String WebAppsLib::arg(int arg) {
-    return server.arg(arg);
-}
-
-//Forwards server.send(int code, const String contentType, const String content).
-void WebAppsLib::send(int code, const String contentType, const String content) {
-    server.send(code, contentType, content);
+    _ssid=ssid;
+    _password=password;
 }
 
 //Puts data to send into json format and sends it to web-server. Can be called from any funcion.
@@ -73,7 +60,7 @@ void WebAppsLib::sendData(String topic, String data)
     String strdata;
     root.printTo(strdata);
     strdata = "[" + strdata + "]";
-    server.send(200, "application/json", strdata);
+    WebApps.send(200, "application/json", strdata);
 }
 
 //Returns data as string from json XMLHttpRequest and assumes the argument from the request is 0, which it usually is.
@@ -86,7 +73,7 @@ String WebAppsLib::getData(String topic)
 String WebAppsLib::getData(int argNum, String topic)
 {
   StaticJsonBuffer<JSONBUFFER> jsonBuffer;
-  JsonObject &dataJson = jsonBuffer.parse(server.arg(argNum));
+  JsonObject &dataJson = jsonBuffer.parse(WebApps.arg(argNum));
   String dataString = dataJson.get<String>(topic);
   return dataString;
 }
@@ -116,7 +103,7 @@ String WebAppsLib::bool2string(boolean boo)
 void WebAppsLib::handleIndexFile()
 {
     File file = SPIFFS.open(INDEX_FILE, "r");
-    server.streamFile(file, "text/html");
+    WebApps.streamFile(file, "text/html");
     file.close();
 }
 
@@ -124,7 +111,7 @@ void WebAppsLib::handleIndexFile()
 void WebAppsLib::handleLogo()
 {
     File file = SPIFFS.open(LOGO_FILE, "r");
-    server.streamFile(file, "image/png");
+    WebApps.streamFile(file, "image/png");
     file.close();
 }
 
@@ -145,20 +132,38 @@ void WebAppsLib::handleFileList()
         entry.close();
     }
     output += "]";
-    server.send(200, "text/plain", output);
+    WebApps.send(200, "text/plain", output);
 }
 
 void WebAppsLib::handleGet() {
     String inputMessage;
 
-    if (server.hasArg("input1"))
+    if (WebApps.hasArg("input1"))
     {
-        inputMessage = server.arg(0);
+        inputMessage = WebApps.arg(0);
         Serial.println(inputMessage);
         Kniwwelino.MATRIXwriteAndWait(inputMessage);
     }
-    server.sendHeader("Location", "/", true);
-    server.send(302, "text/plain", "");
+    WebApps.sendHeader("Location", "/", true);
+    WebApps.send(302, "text/plain", "");
 }
 
+void WebAppsLib::getConfig() 
+{
+    File file = SPIFFS.open("/wifi.conf", "r");
+    WebApps.streamFile(file, "text/plain");
+    file.close();
+}
+
+void WebAppsLib::remConfig()
+{
+    SPIFFS.remove("/wifi.conf");
+}
+
+void WebAppsLib::remEverything()
+{
+    SPIFFS.remove("/wifi.conf");
+    SPIFFS.remove("/index.html");
+    SPIFFS.remove("/logo.png");
+}
 WebAppsLib WebApps;

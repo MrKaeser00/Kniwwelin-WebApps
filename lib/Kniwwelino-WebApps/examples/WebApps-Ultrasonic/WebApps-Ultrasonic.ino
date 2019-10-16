@@ -23,12 +23,12 @@ void setup()
   WebApps.on("/sonic", checkSonic);
 
   //Initializes WebApps library.
-  WebApps.init();
+  WebApps.init(true);
 }
 
 void loop()
 {
-  WebApps.handle();
+  WebApps.handleClient();
   Kniwwelino.loop();
 }
 

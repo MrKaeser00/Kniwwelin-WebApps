@@ -36,7 +36,7 @@ void setup()
 void loop()
 {
   //Handle clients.
-  WebApps.handle();
+  WebApps.handleClient();
   Kniwwelino.loop();
   //Handle the WS2812FX service.
   RGB.service();

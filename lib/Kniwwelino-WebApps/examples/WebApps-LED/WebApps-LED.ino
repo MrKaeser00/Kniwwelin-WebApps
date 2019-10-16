@@ -23,7 +23,7 @@ void setup()
   WebApps.on("/cledstate", checkLedState);
 
   //Initializes WebApps library.
-  WebApps.init();
+  WebApps.init(true);
 
   //Set pin to output
   pinMode(pin, OUTPUT);
@@ -33,7 +33,7 @@ void setup()
 void loop()
 {
   //Handles clients.
-  WebApps.handle();
+  WebApps.handleClient();
   Kniwwelino.loop();
 }
 
