@@ -1,0 +1,49 @@
+<--StyleMarker
+		#box {
+			width: 350px;
+			height: 30px;
+			text-align: center;
+			position: relative;
+			background-color: darkorange;
+		}
+StyleMarker-->
+
+<--ContentMarker
+	<h1>LED</h1>	
+	<div id="box<--ledId-->">
+		<h2>Show the Matrix State</h2>
+		<p> Matrix Status: <span id="<--ledId-->">__</span> </p>
+		<button onclick="changeState(true, <--ledId-->)"> TOGGLE </button>
+	</div>
+ContentMarker-->
+
+<--ScriptMarker
+	function changeState(change, param) {
+		console.log("button was clicked");
+		var xhr = new XMLHttpRequest();
+		
+		if (change) {
+			var url = "/changeLedState";
+			
+		} else {
+			var url = "/checkLedState";
+		}
+
+		xhr.onreadystatechange = function () {
+			if (this.readyState == 4 && this.status == 200) {
+				document.getElementById("box" + param).innerHTML = JSON.parse(this.responseText)[0].param;
+				if (JSON.parse(this.responseText)[0].param == "On") {
+					document.getElementById("box" + param).style.backgroundColor = "rgb(10,255,50)";
+				} else if (JSON.parse(this.responseText)[0].param == "Off") {
+					document.getElementById("box" + param).style.backgroundColor = "rgb(255,50,10)";
+				}
+			}
+		};
+
+		xhr.open("POST", url, true);
+		xhr.setRequestHeader("Content-Type", "application/json");
+		xhr.send(JSON.stringify({"ledId": param}));		
+	}
+
+	document.addEventListener('DOMContentLoaded', changeState(false), false);
+ScriptMarker-->

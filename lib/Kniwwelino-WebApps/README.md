@@ -1,8 +1,8 @@
 # WebApps-Lib #
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the Lesser General Public License as published
-by the Free Software Foundation, either version 3 of the License.
+it under the terms of the Lesser General Public License version 3 as published
+by the Free Software Foundation.
 
 Please add the additional Boards Manager URL to the Arduino Preferences :
   * http://arduino.esp8266.com/stable/package_esp8266com_index.json

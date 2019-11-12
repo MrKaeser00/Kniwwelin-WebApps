@@ -1,3 +1,6 @@
 .pio
 .vscode
 *.code-workspace
+EspStackTraceDecoder.jar
+dump.txt
+stack.cmd

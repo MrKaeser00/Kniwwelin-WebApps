@@ -15,6 +15,8 @@
 
 #include <Kniwwelino.h>
 
+#include <map>
+
 #define INDEX_FILE  "/index.html"
 #define LOGO_FILE   "/logo.png"
 
@@ -37,6 +39,15 @@ public:
     String getColorData(String topic);
     String bool2string(boolean boo);
     void handleGet();
+
+    void setRGBLed();
+
+    void contentBuilder(String sTemplate);
+    void contentBuilder(String arrayTemplates[],const int numberOfElements); 
+
+    void pageBuilder(String style, String content, String script);
+
+    String ledSiteBuilder(String buf, String ledId);
     
 private:
     void handleIndexFile();
@@ -49,6 +60,17 @@ private:
 
     const char *_ssid;
     const char *_password;
+    String _page;
+
+    void pageServer();
+
+    std::map<String, bool> _led;
+
+
+    //boolean _led[] = {};
+
+    void changeLedState();
+    void checkLedState();
 };
 
 extern WebAppsLib WebApps;
