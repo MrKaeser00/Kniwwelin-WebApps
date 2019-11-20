@@ -43,12 +43,12 @@ public:
     void setRGBLed();
 
     void contentBuilder(String sTemplate);
-    void contentBuilder(String arrayTemplates[],const int numberOfElements); 
+    void contentBuilder(char *arrayTemplates[],const int numberOfElements); 
 
     void pageBuilder(String style, String content, String script);
 
     String ledSiteBuilder(String buf, String ledId);
-    
+
 private:
     void handleIndexFile();
     void handleLogo();

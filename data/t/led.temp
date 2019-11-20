@@ -9,8 +9,8 @@
 StyleMarker-->
 
 <--ContentMarker
-	<h1>LED</h1>	
-	<div id="box<--ledId-->">
+	<h1>LED</h1>
+	<div id="box<--ledId-->" class="box">
 		<h2>Show the Matrix State</h2>
 		<p> Matrix Status: <span id="<--ledId-->">__</span> </p>
 		<button onclick="changeState(true, <--ledId-->)"> TOGGLE </button>
@@ -21,10 +21,10 @@ ContentMarker-->
 	function changeState(change, param) {
 		console.log("button was clicked");
 		var xhr = new XMLHttpRequest();
-		
+
 		if (change) {
 			var url = "/changeLedState";
-			
+
 		} else {
 			var url = "/checkLedState";
 		}
@@ -42,7 +42,7 @@ ContentMarker-->
 
 		xhr.open("POST", url, true);
 		xhr.setRequestHeader("Content-Type", "application/json");
-		xhr.send(JSON.stringify({"ledId": param}));		
+		xhr.send(JSON.stringify({"ledId": param}));
 	}
 
 	document.addEventListener('DOMContentLoaded', changeState(false), false);

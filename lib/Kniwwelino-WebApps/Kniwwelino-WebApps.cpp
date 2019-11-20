@@ -81,9 +81,13 @@ String WebAppsLib::getData(int argNum, String topic)
 {
     StaticJsonBuffer<JSONBUFFER> jsonBuffer;
     JsonObject &dataJson = jsonBuffer.parse(WebApps.arg(argNum));
-    Serial.println("getData: "+WebApps.arg(argNum));
+    Serial.print("getData for ");
+    Serial.print(argNum);
+    Serial.print(": ");
+    Serial.println(WebApps.arg(argNum));
     String dataString = dataJson.get<String>(topic);
-    Serial.println("Str getData: "+dataString);
+    Serial.print("Str getData: ");
+    Serial.println(dataString);
     return dataString;
 }
 
@@ -203,39 +207,43 @@ void WebAppsLib::contentBuilder(String sTemplate)
     file.close();
 }
 
-void WebAppsLib::contentBuilder(String arrayTemplates[], const int numberOfElements)
+void WebAppsLib::contentBuilder(char *arrayTemplates[], const int numberOfElements)
 {
     String style;
     String content;
     String script;
+    int ledincluded = 0;
 
-    for (int i = 0; i <= numberOfElements; i++)
+    for (int i = 0; i < numberOfElements; i++)
     {
         String buf;
         File file;
-        int ledincluded = 0;
+        Serial.print("iteration: ");
+        Serial.print(i);
+        Serial.print(" ");
+        Serial.println(arrayTemplates[i]);
 
-        Serial.println(i);
-
-        if (arrayTemplates[i].startsWith("led_"))
+        String ele = String(arrayTemplates[i]);
+        if (ele.startsWith("led_"))
         {
-            
+
             //Serial.println(arrayTemplates[i]);
             file = SPIFFS.open("/t/led.temp", "r");
             buf = file.readString();
-            
+
             buf.replace("<--ledId-->", arrayTemplates[i]);
             //Serial.println(buf);
             //buf.replace("<--checkLedId", "check_" + arrayTemplates[i]);
             //int num = (int)arrayTemplates[i].substring(5,6).c_str();
             //Serial.println(arrayTemplates[i].substring(5,6));
             _led[arrayTemplates[i]] = false;
+            Serial.print("_LED:");
             Serial.println(_led[arrayTemplates[i]]);
 
             //Serial.println(_led[arrayTemplates[i]]);
             ledincluded += 1;
 
-            if (ledincluded == 1) 
+            if (ledincluded == 1)
             {
                 script += buf.substring(buf.indexOf("<--ScriptMarker") + 15, buf.indexOf("ScriptMarker-->"));
             }
@@ -243,7 +251,7 @@ void WebAppsLib::contentBuilder(String arrayTemplates[], const int numberOfEleme
         else
         {
             //Serial.println("rgbled ++ ");
-            file = SPIFFS.open("/t/" + arrayTemplates[i] + ".temp", "r");
+            file = SPIFFS.open("/t/" + String(arrayTemplates[i]) + ".temp", "r");
             buf = file.readString();
             script += buf.substring(buf.indexOf("<--ScriptMarker") + 15, buf.indexOf("ScriptMarker-->"));
         }
