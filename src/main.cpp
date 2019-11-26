@@ -25,8 +25,8 @@ float tempSensorWrapper() {
   return tempSensor.getTempC();
 }
 */
-const int numberOfElements = 3;
-String siteArray[numberOfElements] = {"led_D5", "led_D0", "rgbled"};
+const int numberOfElements = 1;
+char *siteArray[numberOfElements] = {"led_D6"};
 
 //maybe define name by name_pin or something similar
 /*

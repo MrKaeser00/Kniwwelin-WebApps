@@ -35,6 +35,7 @@ void WebAppsLib::init(boolean enableFailover) //true=hotspot failover enabled
 
     WebApps.on("/changeLedState", HTTP_POST, std::bind(&WebAppsLib::changeLedState, this));
     WebApps.on("/checkLedState", HTTP_POST, std::bind(&WebAppsLib::checkLedState, this));
+    WebApps.on("/page.txt", std::bind(&WebAppsLib::servePagetxt, this));
 
     MDNS.begin("Kniwwelino");
 
@@ -65,7 +66,7 @@ void WebAppsLib::sendData(String topic, String data)
     root[topic] = data;
     String strdata;
     root.printTo(strdata);
-    strdata = "[" + strdata + "]";
+    //strdata = "[" + strdata + "]";
     Serial.println("sendData: "+strdata);
     WebApps.send(200, "application/json", strdata);
 }
@@ -81,9 +82,11 @@ String WebAppsLib::getData(int argNum, String topic)
 {
     StaticJsonBuffer<JSONBUFFER> jsonBuffer;
     JsonObject &dataJson = jsonBuffer.parse(WebApps.arg(argNum));
-    Serial.println("getData: "+WebApps.arg(argNum));
+    Serial.println("getData: " + WebApps.arg(argNum));
     String dataString = dataJson.get<String>(topic);
-    Serial.println("Str getData: "+dataString);
+    Serial.println("free heap " + String(ESP.getFreeHeap()));
+    Serial.println("Str getData: " + dataString);
+    //Serial.println("fragmentation: " + ESP.getHeapFragmentation());
     return dataString;
 }
 
@@ -203,53 +206,62 @@ void WebAppsLib::contentBuilder(String sTemplate)
     file.close();
 }
 
-void WebAppsLib::contentBuilder(String arrayTemplates[], const int numberOfElements)
+void WebAppsLib::contentBuilder(char *arrayTemplates[], const int numberOfElements)
 {
     String style;
     String content;
     String script;
+    boolean ledincluded=false;
 
-    for (int i = 0; i <= numberOfElements; i++)
+    for (int i = 0; i < numberOfElements; i++)
     {
         String buf;
         File file;
-        int ledincluded = 0;
-
+        
         Serial.println(i);
 
-        if (arrayTemplates[i].startsWith("led_"))
-        {
-            
+        if (String(arrayTemplates[i]).startsWith("led_"))
+        { 
             //Serial.println(arrayTemplates[i]);
             file = SPIFFS.open("/t/led.temp", "r");
             buf = file.readString();
             
-            buf.replace("<--ledId-->", arrayTemplates[i]);
+            if (!ledincluded) 
+            {
+                style += buf.substring(buf.indexOf("<--StyleMarker") + 14, buf.indexOf("StyleMarker-->"));
+                script += buf.substring(buf.indexOf("<--ScriptMarker") + 15, buf.indexOf("ScriptMarker-->"));
+                ledincluded = true;
+                //Serial.println("ledincluded " + WebApps.bool2string(ledincluded));
+            }
+            
+            //String ledScript = buf.substring(buf.indexOf("<--MultiScriptMarker") + 20, buf.indexOf("MultiScriptMarker-->"));
+            //ledScript.replace("<--ledId-->", arrayTemplates[i]);
+            //script += ledScript;
+            String ledContent = buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
+            ledContent.replace("<--ledId-->", arrayTemplates[i]);
+            content += ledContent;
             //Serial.println(buf);
             //buf.replace("<--checkLedId", "check_" + arrayTemplates[i]);
             //int num = (int)arrayTemplates[i].substring(5,6).c_str();
             //Serial.println(arrayTemplates[i].substring(5,6));
-            _led[arrayTemplates[i]] = false;
-            Serial.println(_led[arrayTemplates[i]]);
+            _led[String(arrayTemplates[i])] = false;
+            Serial.println(String(arrayTemplates[i]) + ":" + _led[String(arrayTemplates[i])]);
 
             //Serial.println(_led[arrayTemplates[i]]);
-            ledincluded += 1;
-
-            if (ledincluded == 1) 
-            {
-                script += buf.substring(buf.indexOf("<--ScriptMarker") + 15, buf.indexOf("ScriptMarker-->"));
-            }
         }
         else
         {
+            Serial.println(arrayTemplates[i]);
             //Serial.println("rgbled ++ ");
-            file = SPIFFS.open("/t/" + arrayTemplates[i] + ".temp", "r");
+            file = SPIFFS.open("/t/" + String(arrayTemplates[i]) + ".temp", "r");
             buf = file.readString();
+            style += buf.substring(buf.indexOf("<--StyleMarker") + 14, buf.indexOf("StyleMarker-->"));
             script += buf.substring(buf.indexOf("<--ScriptMarker") + 15, buf.indexOf("ScriptMarker-->"));
+            content += buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
         }
 
-        style += buf.substring(buf.indexOf("<--StyleMarker") + 14, buf.indexOf("StyleMarker-->"));
-        content += buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
+        //style += buf.substring(buf.indexOf("<--StyleMarker") + 14, buf.indexOf("StyleMarker-->"));
+        //content += buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
         //script += buf.substring(buf.indexOf("<--OneScriptMarker") + 18, buf.indexOf("OneScriptMarker-->"));
         file.close();
     }
@@ -277,6 +289,13 @@ void WebAppsLib::pageBuilder(String style, String content, String script)
     page += "</script>\n</html>\n";
 
     _page = page;
+
+    File file;
+    file = SPIFFS.open("/t/page.txt", "w+");
+
+    file.print(page);
+    file.close();
+
 }
 
 void WebAppsLib::pageServer()
@@ -286,7 +305,10 @@ void WebAppsLib::pageServer()
 
 void WebAppsLib::changeLedState()
 {
-    String ledId = WebApps.getData("ledId");
+    Serial.println("changeLedState()");
+    Serial.println(String(WebApps.getData("ledId")));
+    //String ledId = WebApps.getData("ledId");
+    String ledId = "led_D0";
     //int id = (int)ledId.substring(4,5).c_str();
     Serial.println(ledId);
     bool ledState = _led[ledId];
@@ -295,15 +317,15 @@ void WebAppsLib::changeLedState()
     if (ledState)
     {
         WebApps.sendData(ledId, "Off");
-        //Kniwwelino.PINsetEffect(pin, PIN_OFF);
-        Kniwwelino.MATRIXwrite(WebApps.bool2string(!ledState));
+        Kniwwelino.PINsetEffect(pin, PIN_OFF);
+        //Kniwwelino.MATRIXwrite(WebApps.bool2string(!ledState));
         _led[ledId] = !ledState;
     }
     else
     {
         WebApps.sendData(ledId, "On");
-        Kniwwelino.MATRIXwrite(WebApps.bool2string(!ledState));
-        //Kniwwelino.PINsetEffect(pin, PIN_ON);
+        Kniwwelino.PINsetEffect(pin, PIN_ON);
+        //Kniwwelino.MATRIXwrite(WebApps.bool2string(!ledState));
         _led[ledId] = !ledState;
     }
 }
@@ -311,13 +333,14 @@ void WebAppsLib::changeLedState()
 //A function to check for the LED state (only used when first (re)loading the page).
 void WebAppsLib::checkLedState()
 {
-    String ledId = WebApps.getData("ledId");
+    //String ledId = WebApps.getData("ledId");
+    String ledId="led_D0";
     //int id = (int)ledId.substring(4,5).c_str();
     //Serial.println(WebApps.getData("ledId"));
     //String ledId = WebApps.getData("ledId");
     Serial.println("ledId: "+ledId);
     boolean ledState = _led[ledId];
-    Kniwwelino.MATRIXwrite(WebApps.bool2string(ledState));
+    //Kniwwelino.MATRIXwrite(WebApps.bool2string(ledState));
     if (ledState)
     {
         WebApps.sendData(ledId, "On");
@@ -326,6 +349,20 @@ void WebAppsLib::checkLedState()
     {
         WebApps.sendData(ledId, "Off");
     }
+}
+
+String WebAppsLib::extractJSON(JsonObject json, String topic)
+{
+    String dataString = json.get<String>(topic);
+    return dataString;
+}
+
+void WebAppsLib::servePagetxt()
+{
+    File file;
+    file = SPIFFS.open("/t/page.txt", "r");
+    WebApps.streamFile(file, "text/plain");
+    file.close();
 }
 
 WebAppsLib WebApps;

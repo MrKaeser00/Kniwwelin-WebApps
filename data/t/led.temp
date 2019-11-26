@@ -1,5 +1,5 @@
 <--StyleMarker
-		#box {
+		.LEDbox {
 			width: 350px;
 			height: 30px;
 			text-align: center;
@@ -10,10 +10,10 @@ StyleMarker-->
 
 <--ContentMarker
 	<h1>LED</h1>	
-	<div id="box<--ledId-->">
+	<div id="box<--ledId-->" class="LEDbox">
 		<h2>Show the Matrix State</h2>
 		<p> Matrix Status: <span id="<--ledId-->">__</span> </p>
-		<button onclick="changeState(true, <--ledId-->)"> TOGGLE </button>
+		<button onclick="changeState(true, '<--ledId-->')"> TOGGLE </button>
 	</div>
 ContentMarker-->
 
@@ -29,21 +29,25 @@ ContentMarker-->
 			var url = "/checkLedState";
 		}
 
+		xhr.open("POST", url, true);
+		xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+		xhr.send(JSON.stringify({"ledId": param}));
+		
 		xhr.onreadystatechange = function () {
 			if (this.readyState == 4 && this.status == 200) {
-				document.getElementById("box" + param).innerHTML = JSON.parse(this.responseText)[0].param;
-				if (JSON.parse(this.responseText)[0].param == "On") {
+				var jsonParam = JSON.parse(this.responseText);
+				jsonParam = jsonParam[param];
+				document.getElementById(param).innerHTML = jsonParam;
+				if (jsonParam == "On") {
 					document.getElementById("box" + param).style.backgroundColor = "rgb(10,255,50)";
-				} else if (JSON.parse(this.responseText)[0].param == "Off") {
+				} else if (jsonParam == "Off") {
 					document.getElementById("box" + param).style.backgroundColor = "rgb(255,50,10)";
 				}
 			}
-		};
-
-		xhr.open("POST", url, true);
-		xhr.setRequestHeader("Content-Type", "application/json");
-		xhr.send(JSON.stringify({"ledId": param}));		
+		};		
 	}
-
-	document.addEventListener('DOMContentLoaded', changeState(false), false);
 ScriptMarker-->
+
+<--MultiScriptMarker
+document.addEventListener('DOMContentLoaded', changeState(false, '<--ledId-->'), false);
+MultiScriptMarker-->

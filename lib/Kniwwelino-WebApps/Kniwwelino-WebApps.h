@@ -24,7 +24,7 @@
 #define LIST_DIR    "/list"
 #define GET_DIR     "/get"
 
-#define JSONBUFFER  200
+#define JSONBUFFER  100
 #define WEB_PORT    80
 
 class WebAppsLib: public ESP8266WebServer
@@ -43,7 +43,7 @@ public:
     void setRGBLed();
 
     void contentBuilder(String sTemplate);
-    void contentBuilder(String arrayTemplates[],const int numberOfElements); 
+    void contentBuilder(char *arrayTemplates[],const int numberOfElements); 
 
     void pageBuilder(String style, String content, String script);
 
@@ -71,6 +71,9 @@ private:
 
     void changeLedState();
     void checkLedState();
+    void servePagetxt();
+
+    String extractJSON(JsonObject json, String topic);
 };
 
 extern WebAppsLib WebApps;
