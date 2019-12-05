@@ -1,16 +1,15 @@
 <--StyleMarker  
-		#boxColor {
-			width: 350px;
-			height: 30px;
-			text-align: center;
-			position: relative;
-			background-color: greenyellow;
-		}
+	.boxColor {
+		width: 350px;
+		height: 30px;
+		text-align: center;
+		position: relative;
+		background-color: greenyellow;
+	}
 StyleMarker-->
 
 <--ContentMarker
 	<h1>RGB Picker</h1>	
-
 	<div id="boxColor">
 		<h2>Color to show on RGB LED</h2>
 		<form action="/get">

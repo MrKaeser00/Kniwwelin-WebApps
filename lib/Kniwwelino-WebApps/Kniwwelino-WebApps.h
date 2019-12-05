@@ -17,17 +17,22 @@
 
 #include <map>
 
-#define INDEX_FILE  "/index.html"
-#define LOGO_FILE   "/logo.png"
+#define INDEX_FILE "/index.html"
+#define LOGO_FILE "/logo.png"
 
-#define ROOT_DIR    "/"
-#define LIST_DIR    "/list"
-#define GET_DIR     "/get"
+#define ROOT_DIR "/"
+#define LIST_DIR "/list"
+#define GET_DIR "/get"
+#define LED_TOGGLE_DIR "/changeLedState"
+#define LED_CHECK_DIR "/checkLedState"
 
-#define JSONBUFFER  100
-#define WEB_PORT    80
+#define SSID "Kniwwelino"
+#define PASSWORD_WPA2 "kniwwelino" //At least 8 characters
 
-class WebAppsLib: public ESP8266WebServer
+#define JSONBUFFER 100
+#define WEB_PORT 80
+
+class WebAppsLib : public ESP8266WebServer
 {
 public:
     WebAppsLib();
@@ -38,42 +43,34 @@ public:
     String getData(int argNum, String topic);
     String getColorData(String topic);
     String bool2string(boolean boo);
-    void handleGet();
-
-    void setRGBLed();
 
     void contentBuilder(String sTemplate);
-    void contentBuilder(char *arrayTemplates[],const int numberOfElements); 
+    void contentBuilder(char *arrayTemplates[], const int numberOfElements);
 
-    void pageBuilder(String style, String content, String script);
-
-    String ledSiteBuilder(String buf, String ledId);
-    
 private:
-    void handleIndexFile();
-    void handleLogo();
     void handleFileList();
+    void pageServer();
 
     void getConfig();
     void remConfig();
     void remEverything();
 
-    const char *_ssid;
-    const char *_password;
-    String _page;
+    void pageBuilder(String style, String content, String script);
 
-    void pageServer();
-
-    std::map<String, bool> _led;
-
-
-    //boolean _led[] = {};
+    void setRGBLed();
 
     void changeLedState();
     void checkLedState();
     void servePagetxt();
+    void getSensorValue();
+	
+    void handleGet();
+	
+    const char *_ssid = "Kniwwelino-AP";
+    const char *_password = "kniwwelino";
+    String _page;
 
-    String extractJSON(JsonObject json, String topic);
+    std::map<String, bool> _led;
 };
 
 extern WebAppsLib WebApps;

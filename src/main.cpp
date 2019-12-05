@@ -25,10 +25,8 @@ float tempSensorWrapper() {
   return tempSensor.getTempC();
 }
 */
-const int numberOfElements = 1;
-char *siteArray[numberOfElements] = {"led_D6"};
-
-//maybe define name by name_pin or something similar
+const int numberOfElements = 3;
+char *siteArray[numberOfElements] = {"led_D6", "led_D0", "rgbled"};
 /*
 //A function to check the temperature from a DS18B20 sensor.
 void checkTemp()
@@ -51,14 +49,10 @@ void checkSonic()
 void setup()
 {
   Serial.begin(115200);
-  ArduinoOTA.begin();                          //Enables Over-The-Air updates
+  ArduinoOTA.begin();                                  //Enables Over-The-Air updates
   Kniwwelino.begin("WebApps-Main", true, true, false); // Wifi=true, Fastboot=true, MQTT Logging=false
   //tempSensor.begin();
 
-  // Print local IP address.
-  //Serial.println("");
-  //Serial.println("WiFi connected.");
-  //Serial.println("IP address: ");
   Serial.println(Kniwwelino.getIP());
 
   //Handle temperature.
@@ -68,9 +62,10 @@ void setup()
   //WebApps.on("/sonic", checkSonic);
 
   //Initializes WebApps library.
-  //WebApps.setCredentials("Kniwwelino_9", "EDD1C");
+  //WebApps.setCredentials("Kniwwelino_9", "EDD1C123");
   WebApps.init(true);
-  //pinMode(D5, OUTPUT);
+  pinMode(D0, OUTPUT);
+  pinMode(D6, OUTPUT);
 
   //RGB.init();
   //RGB.start();

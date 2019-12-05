@@ -20,4 +20,3 @@ getColorData	KEYWORD2
 bool2string	KEYWORD2
 handleGet	KEYWORD2
 contentBuilder  KEYWORD2
-pageBuilder KEYWORD2
