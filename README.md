@@ -1,4 +1,4 @@
-# Kniwwelino-Web #
+# Kniwwelino-WebApps #
 
 This project is an expansion of the Kniwwelino project by [Luxembourg Institute of Science and Technology](http://www.list.lu). 
 A link to the [Kniwwelino&reg;](https://github.com/LIST-LUXEMBOURG/KniwwelinoLib) GitHub project. 
