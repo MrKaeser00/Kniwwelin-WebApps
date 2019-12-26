@@ -1,6 +1,6 @@
 /*
     Web-Apps.cpp - Library to enable web-functionality on the Kniwwelino board.
-
+    Author: Christophe Kayser
     Released under LGPL 3.0.
 */
 
@@ -30,10 +30,8 @@ void WebAppsLib::init(boolean enableFailover) //true=hotspot failover enabled
 
     //WebApps.on("/wifi", std::bind(&WebAppsLib::getConfig, this));
     //WebApps.on("/delconfig", std::bind(&WebAppsLib::remConfig, this));
-    //WebApps.on("/deleverything", std::bind(&WebAppsLib::remEverything, this));
 
     WebApps.on("/page.txt", std::bind(&WebAppsLib::servePagetxt, this));
-    //WebApps.on("/getSensorValue", HTTP_POST, std::bind(&WebAppsLib::getSensorValue, this));
 
     if (enableFailover && !Kniwwelino.isConnected())
     {
@@ -144,6 +142,7 @@ void WebAppsLib::handleGet()
     WebApps.send(302, "text/plain", "");
 }
 
+//Shows the WiFi-config on the site.
 void WebAppsLib::getConfig()
 {
     File file = SPIFFS.open("/wifi.conf", "r");
@@ -151,18 +150,13 @@ void WebAppsLib::getConfig()
     file.close();
 }
 
+//Deletes the WiFi-config from the filesystem.
 void WebAppsLib::remConfig()
 {
     SPIFFS.remove("/wifi.conf");
 }
 
-void WebAppsLib::remEverything()
-{
-    SPIFFS.remove("/wifi.conf");
-    SPIFFS.remove("/index.html");
-    SPIFFS.remove("/logo.png");
-}
-
+//Own method to set the RGB-LED on the Kniwwelion.
 void WebAppsLib::setRGBLed()
 {
     String colorString = WebApps.getColorData("colorcode");
@@ -172,6 +166,7 @@ void WebAppsLib::setRGBLed()
     Kniwwelino.RGBsetColorEffect(r, g, b, RGB_ON, RGB_FOREVER);
 }
 
+//A function that extracts the content, script and style from one template and takes the name of the template as its argument.
 void WebAppsLib::contentBuilder(String sTemplate)
 {
     File file = SPIFFS.open("/t/" + sTemplate + ".temp", "r");
@@ -202,7 +197,6 @@ void WebAppsLib::contentBuilder(char *arrayTemplates[], const int numberOfElemen
 
         if (String(arrayTemplates[i]).startsWith("led_"))
         {
-            //Serial.println(arrayTemplates[i]);
             file = SPIFFS.open("/t/led.temp", "r");
             buf = file.readString();
 
@@ -219,17 +213,12 @@ void WebAppsLib::contentBuilder(char *arrayTemplates[], const int numberOfElemen
             String ledContent = buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
             ledContent.replace("<--ledId-->", arrayTemplates[i]);
             content += ledContent;
-            //Serial.println(buf);
-            //buf.replace("<--checkLedId", "check_" + arrayTemplates[i]);
-            //int num = (int)arrayTemplates[i].substring(5,6).c_str();
-            //Serial.println(arrayTemplates[i].substring(5,6));
             _led[String(arrayTemplates[i])] = false;
             Serial.println(String(arrayTemplates[i]) + ":" + _led[String(arrayTemplates[i])]);
         }
         else
         {
             Serial.println(arrayTemplates[i]);
-            //Serial.println("rgbled ++ ");
             file = SPIFFS.open("/t/" + String(arrayTemplates[i]) + ".temp", "r");
             buf = file.readString();
             style += buf.substring(buf.indexOf("<--StyleMarker") + 14, buf.indexOf("StyleMarker-->"));
@@ -237,15 +226,8 @@ void WebAppsLib::contentBuilder(char *arrayTemplates[], const int numberOfElemen
             content += buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
         }
 
-        //style += buf.substring(buf.indexOf("<--StyleMarker") + 14, buf.indexOf("StyleMarker-->"));
-        //content += buf.substring(buf.indexOf("<--ContentMarker") + 16, buf.indexOf("ContentMarker-->"));
-        //script += buf.substring(buf.indexOf("<--OneScriptMarker") + 18, buf.indexOf("OneScriptMarker-->"));
         file.close();
     }
-
-    //Serial.println(style);
-    //Serial.println(content);
-    //Serial.println(script);
 
     WebApps.pageBuilder(style, content, script);
 }
@@ -335,7 +317,7 @@ void WebAppsLib::checkLedState()
     }
 }
 
-//A function that servers the source code of the page as a text file in the browser.
+//A function that serves the source code of the page as a text file in the browser.
 void WebAppsLib::servePagetxt()
 {
     File file;
@@ -343,11 +325,5 @@ void WebAppsLib::servePagetxt()
     WebApps.streamFile(file, "text/plain");
     file.close();
 }
-/*
-void WebAppsLib::getSensorValue()
-{
-    String sesnorId = WebApps.getData("sensorId");
-    WebApps.sendData();
-}
-*/
+
 WebAppsLib WebApps;

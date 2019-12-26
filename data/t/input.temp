@@ -1,0 +1,22 @@
+<--StyleMarker
+    .boxInput {
+        width: 300px;
+        height: 45px;
+        text-align: center;
+        position: relative;
+        top: 150px;
+    }
+StyleMarker-->
+
+<--ContentMarker
+    <div id="boxInput" class="boxInput">
+		<form action="/get">
+		Text to print on Matrix <input type="text" name="input1">
+		<input type="submit" value="Submit">
+		</form>
+	</div>
+ContentMarker-->
+
+<--ScriptMarker
+
+ScriptMarker-->

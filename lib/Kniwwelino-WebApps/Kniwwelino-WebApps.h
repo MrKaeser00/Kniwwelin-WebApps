@@ -1,8 +1,9 @@
 /*
     Web-Apps.h - Library to enable web-functionality on the Kniwwelino board.
-
+    Author: Christophe Kayser
     Released under LGPL 3.0.
 */
+
 #ifndef WebApps_h
 #define WebApps_h
 
@@ -25,9 +26,6 @@
 #define GET_DIR "/get"
 #define LED_TOGGLE_DIR "/changeLedState"
 #define LED_CHECK_DIR "/checkLedState"
-
-#define SSID "Kniwwelino"
-#define PASSWORD_WPA2 "kniwwelino" //At least 8 characters
 
 #define JSONBUFFER 100
 #define WEB_PORT 80
@@ -53,7 +51,6 @@ private:
 
     void getConfig();
     void remConfig();
-    void remEverything();
 
     void pageBuilder(String style, String content, String script);
 
@@ -62,7 +59,6 @@ private:
     void changeLedState();
     void checkLedState();
     void servePagetxt();
-    void getSensorValue();
 	
     void handleGet();
 	

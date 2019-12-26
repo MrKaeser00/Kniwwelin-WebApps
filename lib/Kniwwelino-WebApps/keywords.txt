@@ -1,8 +1,4 @@
 #######################################
-# Syntax Coloring Map For Wire
-#######################################
-
-#######################################
 # Datatypes (KEYWORD1)
 #######################################
 
@@ -18,5 +14,4 @@ sendData	KEYWORD2
 getData	KEYWORD2
 getColorData	KEYWORD2
 bool2string	KEYWORD2
-handleGet	KEYWORD2
 contentBuilder  KEYWORD2
