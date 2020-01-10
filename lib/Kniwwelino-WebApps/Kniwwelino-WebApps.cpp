@@ -1,5 +1,5 @@
 /*
-    Web-Apps.cpp - Library to enable web-functionality on the Kniwwelino board.
+    Web-Apps.cpp - Library to expand web-functionality on the Kniwwelino board.
     Author: Christophe Kayser
     Released under LGPL 3.0.
 */
@@ -8,7 +8,7 @@
 
 WebAppsLib::WebAppsLib() : ESP8266WebServer(WEB_PORT) {}
 
-//Initializes basic functionality (index.html) and starts the web-server. Needs to be called in setup(). When failover is enabled, then you have to call setCredentials(ssid, password) before init(enableFailover)
+//Initializes basic functionality and starts the web-server. Needs to be called in setup() of the main code. When failover is enabled, then you have to call setCredentials(ssid, password) before init(enableFailover)
 void WebAppsLib::init(boolean enableFailover) //true=hotspot failover enabled
 {
     //Starts filesystem access.
@@ -64,7 +64,7 @@ void WebAppsLib::sendData(String topic, String data)
     root[topic] = data;
     String strdata;
     root.printTo(strdata);
-    Serial.println("sendData: " + strdata);
+    //Serial.println("sendData: " + strdata);
     WebApps.send(200, "application/json", strdata);
 }
 
@@ -81,8 +81,8 @@ String WebAppsLib::getData(int argNum, String topic)
     JsonObject &dataJson = jsonBuffer.parse(WebApps.arg(argNum));
     Serial.println("getData: " + WebApps.arg(argNum));
     String dataString = dataJson.get<String>(topic);
-    Serial.println("free heap " + String(ESP.getFreeHeap()));
-    Serial.println("Str getData: " + dataString);
+    //Serial.println("free heap " + String(ESP.getFreeHeap()));
+    //Serial.println("Str getData: " + dataString);
     //Serial.println("fragmentation: " + ESP.getHeapFragmentation());
     return dataString;
 }
@@ -130,14 +130,11 @@ void WebAppsLib::handleFileList()
 
 void WebAppsLib::handleGet()
 {
-    String inputMessage;
+    String inputMessage = WebApps.arg("input1");
 
-    if (WebApps.hasArg("input1"))
-    {
-        inputMessage = WebApps.arg(0);
-        Serial.println(inputMessage);
-        Kniwwelino.MATRIXwriteAndWait(inputMessage);
-    }
+    Serial.println(inputMessage);
+    Kniwwelino.MATRIXwriteAndWait(inputMessage);
+
     WebApps.sendHeader("Location", "/", true);
     WebApps.send(302, "text/plain", "");
 }
@@ -156,7 +153,7 @@ void WebAppsLib::remConfig()
     SPIFFS.remove("/wifi.conf");
 }
 
-//Own method to set the RGB-LED on the Kniwwelion.
+//Own method to set the RGB-LED on the Kniwwelino.
 void WebAppsLib::setRGBLed()
 {
     String colorString = WebApps.getColorData("colorcode");

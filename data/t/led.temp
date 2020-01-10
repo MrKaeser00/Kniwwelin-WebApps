@@ -9,7 +9,7 @@
 StyleMarker-->
 
 <--ContentMarker
-	<h1><--ledId--></h1>	
+	<h1><--ledId--></h1> 
 	<div id="box<--ledId-->" class="LEDbox">
 		<h2>Show the LED State</h2>
 		<p>LED Status: <span id="<--ledId-->">__</span> </p>

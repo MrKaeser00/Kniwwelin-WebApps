@@ -2,8 +2,8 @@
 #include <ArduinoOTA.h>
 #include <Kniwwelino-WebApps.h>
 
-const int numberOfElements = 3;
-char *siteArray[numberOfElements] = {"led_D6", "led_D0", "rgbled"};
+const int numberOfElements = 4;
+char *siteArray[numberOfElements] = {"rgbled", "led_D6", "led_D0", "input"};
 
 void setup()
 {

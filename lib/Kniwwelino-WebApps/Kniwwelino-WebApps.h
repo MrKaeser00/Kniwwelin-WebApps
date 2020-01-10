@@ -1,5 +1,5 @@
 /*
-    Web-Apps.h - Library to enable web-functionality on the Kniwwelino board.
+    Web-Apps.h - Library to expand web-functionality on the Kniwwelino board.
     Author: Christophe Kayser
     Released under LGPL 3.0.
 */
@@ -17,9 +17,6 @@
 #include <Kniwwelino.h>
 
 #include <map>
-
-#define INDEX_FILE "/index.html"
-#define LOGO_FILE "/logo.png"
 
 #define ROOT_DIR "/"
 #define LIST_DIR "/list"

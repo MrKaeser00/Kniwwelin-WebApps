@@ -9,8 +9,8 @@
 StyleMarker-->
 
 <--ContentMarker
-	<h1>RGB Picker</h1>	
 	<div id="boxColor">
+		<h1>RGB Picker</h1>
 		<h2>Color to show on RGB LED</h2>
 		<form action="/get">
 		<input type="color" id="colorPicker" name="pick">
